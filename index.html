@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>ChatGPT list-input splitter</title>
+</head>
+<body>
+    <h1>ChatGPT list-input splitter</h1>
+
+    <p>This tool splits a long list to get splitted response from ChatGPT.</p>
+    
+    <div>
+        <label for="taskTextArea">Task Text:</label>
+        <textarea id="taskTextArea" rows="5" cols="50"></textarea>
+    </div>
+    
+    <div>
+        <label for="contentTextArea">Content Text:</label>
+        <textarea id="contentTextArea" rows="10" cols="50"></textarea>
+    </div>
+    
+    <button onclick="splitTextButton()">Split Text</button>
+    
+    <h2>Output Text:</h2>
+    
+    <div id="outputs">
+    </div>
+    
+    <script>
+        function splitText() {
+            const taskText = document.getElementById("taskTextArea").value;
+            const contentText = document.getElementById("contentTextArea").value;
+
+            const segmentLength = 50;
+            const contentSegments = splitTextIntoSegments(contentText, segmentLength);
+
+            const outputs = document.getElementById("outputs");
+            // create output text areas one by one
+            for (let i = 0; i < contentSegments.length; i++) {
+                const outputNumber = i + 1;
+                const outputTextArea = document.createElement("textarea");
+                outputTextArea.id = `output${outputNumber}TextArea`;
+                outputTextArea.rows = 10;
+                outputTextArea.cols = 50;
+                outputTextArea.value = `${taskText}\n\n-----------\n\n${contentSegments[i]}`;
+                outputs.appendChild(outputTextArea);
+                
+                const copyButton = document.createElement("button");
+                copyButton.innerText = `Copy Output ${outputNumber}`;
+                copyButton.id = `copyOutput${outputNumber}Button`;
+                copyButton.onclick = () => copyToClipboard(outputNumber);
+                outputs.appendChild(copyButton);
+                
+                outputs.appendChild(document.createElement("br"));
+            }
+            
+        }
+
+        function splitTextIntoSegments(text, segmentLength) {
+            const segments = [];
+            const lines = text.split('\n');
+
+            for (let i = 0; i < lines.length; i += segmentLength) {
+                const segment = lines.slice(i, i + segmentLength).join('\n');
+                segments.push(segment);
+            }
+
+            return segments;
+        }
+
+        function copyToClipboard(outputNumber) {
+            const outputTextArea = document.getElementById(`output${outputNumber}TextArea`);
+            outputTextArea.select();
+            document.execCommand("copy");
+            // change button text to Copied!
+            const copyButton = document.getElementById(`copyOutput${outputNumber}Button`);
+        }
+
+        function splitTextButton() {
+            // clear outputs
+            const outputs = document.getElementById("outputs");
+            while (outputs.firstChild) {
+                outputs.removeChild(outputs.firstChild);
+            }
+            splitText();
+        }
+    </script>
+</body>
+</html>
